@@ -52,6 +52,7 @@ SelectTournamentOp::SelectTournamentOp(std::string inReproProbaName, std::string
 { }
 
 
+#include "GlobalConfig.hpp"
 /*!
  *  \brief Register the parameters of this operator.
  *  \param ioSystem System to use to initialize the operator.
@@ -69,7 +70,7 @@ void SelectTournamentOp::registerParams(System& ioSystem)
 	    "Number of participants for tournament selection."
 	);
 	mNumberParticipants = castHandleT<UInt>(
-	                          ioSystem.getRegister().insertEntry("ec.sel.tournsize", new UInt(2), lDescription));
+	                          ioSystem.getRegister().insertEntry("ec.sel.tournsize", new UInt(TOURNAMENT_SIZE), lDescription));
 
 	Beagle_StackTraceEndM();
 }

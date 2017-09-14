@@ -1,3 +1,4 @@
+#include "GlobalConfig.hpp"
 /*
  *  Open BEAGLE: A Generic Evolutionary Computation Framework in C++
  *  Copyright (C) 2001-2010 by Christian Gagne and Marc Parizeau
@@ -95,7 +96,7 @@ void MilestoneWriteOp::registerParams(Beagle::System& ioSystem)
 		    lOSS.str()
 		);
 		mWritingInterval = castHandleT<UInt>(
-		                       ioSystem.getRegister().insertEntry("ms.write.interval", new UInt(0), lDescription));
+		                       ioSystem.getRegister().insertEntry("ms.write.interval", new UInt(WRITING_INTERVAL), lDescription));
 	}
 	{
 		std::ostringstream lOSS;

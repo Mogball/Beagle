@@ -13,6 +13,11 @@
 # Minimal CMake version
 cmake_minimum_required(VERSION 2.6)
 
+set(CMAKE_BUILD_TYPE "RELEASE")
+set(PACC_DIR X:/usr/pacc-build)
+
+include_directories(X:/Eigen/Eigen)
+
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules/")
 
 if(COMMAND cmake_policy)
@@ -68,6 +73,7 @@ include(CheckFunctionExists)
 include(CheckSymbolExists)
 include(CheckLibraryExists)
 include(CheckCXXCompilerFlag)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/onemax)
 
 # Others macros to include
 include(CMakeMacros/PerformTest.cmake)
@@ -328,6 +334,10 @@ endif(NOT DEFINED CMAKE_FAST_COMPILATION)
 # Check for PACC
 find_package(PACC)
 
+# Check for SFML
+find_package(SFML 2 REQUIRED system graphics window)
+include_directories(${SFML_INCLUDE_DIR})
+
 # Check for zlib
 find_package(ZLIB)
 if(ZLIB_FOUND)
@@ -524,7 +534,7 @@ if(CMAKE_FAST_COMPILATION)
     AllFilesInOne("${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle/EC/libBeagle-EC.cpp" ${BEAGLE_EC_SRC})
     set(BEAGLE_EC_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle/EC/libBeagle-EC.cpp")
     AllFilesInOne("${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle/BitStr/libBeagle-BitStr.cpp" ${BEAGLE_BITSTR_SRC})
-    set(BEAGLE_BITSTR_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle/BitStr/libBeagle-BitStr.cpp")
+    set(BEAGLE_BITSTR_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle/BitStr/libBeagle-BitStr.cpp" src/Beagle-Examples/truss/TrussMain.cpp)
     AllFilesInOne("${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle/FltVec/libBeagle-FltVec.cpp" ${BEAGLE_FLTVEC_SRC})
     set(BEAGLE_FLTVEC_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle/FltVec/libBeagle-FltVec.cpp")
     AllFilesInOne("${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle/IntVec/libBeagle-IntVec.cpp" ${BEAGLE_INTVEC_SRC})
@@ -887,169 +897,18 @@ install(TARGETS Beagle-LinGP DESTINATION lib)
 
 if(BEAGLE_BUILD_EXAMPLES)
 	message(STATUS "Will build Open BEAGLE examples, you can avoid it if you want by setting BEAGLE_BUILD_EXAMPLES to false")
-	
-	
-	# ant example
-	file(GLOB ANT_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/ant/*.cpp")
-	file(GLOB ANT_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/ant/*.conf" "${CMAKE_CURRENT_SOURCE_DIR}/examples/ant/*.xml" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/ant/*.trail" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/ant/ReadMe.txt")
-	add_executable(ant ${ANT_SRC})
-	add_dependencies(ant Beagle-GP Beagle-EC Beagle-Core)
-	target_link_libraries(ant Beagle-GP Beagle-EC Beagle-Core pacc)
-	set_target_properties(ant PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/ant")
-	MoveConfigFiles("${ANT_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/ant" false)
-	install(TARGETS ant DESTINATION bin/ant)
-	install(FILES ${ANT_DATA} DESTINATION bin/ant)
-
-	# knapsack example
-	file(GLOB KNAPSACK_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/knapsack/*.cpp")
-	file(GLOB KNAPSACK_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/knapsack/*.conf" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/knapsack/ReadMe.txt")
-	add_executable(knapsack ${KNAPSACK_SRC})
-	add_dependencies(knapsack Beagle-EMO Beagle-BitStr Beagle-EC Beagle-Core)
-	target_link_libraries(knapsack Beagle-EMO Beagle-BitStr Beagle-EC Beagle-Core pacc)
-	set_target_properties(knapsack PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/knapsack")
-	MoveConfigFiles("${KNAPSACK_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/knapsack" false)
-	install(TARGETS knapsack DESTINATION bin/knapsack)
-	install(FILES ${KNAPSACK_DATA} DESTINATION bin/knapsack)
-
-	# knapsack-hpc example
-	if(NOT BEAGLE_NO_HPC)
-		file(GLOB KNAPSACK_HPC_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/knapsack-hpc/*.cpp")
-		file(GLOB KNAPSACK_HPC_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/knapsack-hpc/*.conf")
-		add_executable(knapsack-hpc ${KNAPSACK_HPC_SRC})
-		add_dependencies(knapsack-hpc Beagle-HPC Beagle-EMO Beagle-BitStr Beagle-EC Beagle-Core)
-		target_link_libraries(knapsack-hpc Beagle-HPC Beagle-EMO Beagle-BitStr Beagle-EC Beagle-Core pacc)
-		set_target_properties(knapsack-hpc PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/knapsack-hpc")
-		MoveConfigFiles("${KNAPSACK_HPC_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/knapsack-hpc" false)
-		install(TARGETS knapsack-hpc DESTINATION bin/knapsack-hpc)
-		install(FILES ${KNAPSACK_HPC_DATA} DESTINATION bin/knapsack-hpc)
-	endif(NOT BEAGLE_NO_HPC)
-
-	# maxfct example
-	file(GLOB MAXFCT_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/maxfct/*.cpp")
-	file(GLOB MAXFCT_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/maxfct/*.conf" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/maxfct/ReadMe.txt")
-	add_executable(maxfct ${MAXFCT_SRC})
-	add_dependencies(maxfct Beagle-BitStr Beagle-EC Beagle-Core)
-	target_link_libraries(maxfct Beagle-BitStr Beagle-EC Beagle-Core pacc)
-	set_target_properties(maxfct PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/maxfct")
-	MoveConfigFiles("${MAXFCT_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/maxfct" false)
-	install(TARGETS maxfct DESTINATION bin/maxfct)
-	install(FILES ${MAXFCT_DATA} DESTINATION bin/maxfct)
-
-#	# maxfctes example
-#	file(GLOB MAXFCTES_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/maxfctes/*.cpp")
-#	file(GLOB MAXFCTES_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/maxfctes/*.conf" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/maxfctes/ReadMe.txt")
-#	add_executable(maxfctes ${MAXFCTES_SRC})
-#	add_dependencies(maxfctes Beagle-ES Beagle-EC Beagle-Core)
-#	target_link_libraries(maxfctes Beagle-ES Beagle-EC Beagle-Core pacc)
-#	set_target_properties(maxfctes PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/maxfctes")
-#	MoveConfigFiles("${MAXFCTES_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/maxfctes" false)
-#	install(TARGETS maxfctes DESTINATION bin/maxfctes)
-#	install(FILES ${MAXFCTES_DATA} DESTINATION bin/maxfctes)
-
-	# maxfctfloat example
-	file(GLOB MAXFCTFLOAT_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/maxfctfloat/*.cpp")
-	file(GLOB MAXFCTFLOAT_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/maxfctfloat/*.conf" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/maxfctfloat/ReadMe.txt")
-	add_executable(maxfctfloat ${MAXFCTFLOAT_SRC})
-	add_dependencies(maxfctfloat Beagle-CMA Beagle-FltVec Beagle-EC Beagle-Core)
-	target_link_libraries(maxfctfloat Beagle-CMA Beagle-FltVec Beagle-EC Beagle-Core pacc)
-	set_target_properties(maxfctfloat PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/maxfctfloat")
-	MoveConfigFiles("${MAXFCTFLOAT_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/maxfctfloat" false)
-	install(TARGETS maxfctfloat DESTINATION bin/maxfctfloat)
-	install(FILES ${MAXFCTFLOAT_DATA} DESTINATION bin/maxfctfloat)
-
-	# multiplexer example
-	file(GLOB MULTIPLEXER_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/multiplexer/*.cpp")
-	file(GLOB MULTIPLEXER_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/multiplexer/*.conf" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/multiplexer/ReadMe.txt")
-	add_executable(multiplexer ${MULTIPLEXER_SRC})
-	add_dependencies(multiplexer Beagle-GP Beagle-EC Beagle-Core)
-	target_link_libraries(multiplexer Beagle-GP Beagle-EC Beagle-Core pacc)
-	set_target_properties(multiplexer PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/multiplexer")
-	MoveConfigFiles("${MULTIPLEXER_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/multiplexer" false)
-	install(TARGETS multiplexer DESTINATION bin/multiplexer)
-	install(FILES ${MULTIPLEXER_DATA} DESTINATION bin/multiplexer)
 
 	# onemax example
 	file(GLOB ONEMAX_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/onemax/*.cpp")
 	file(GLOB ONEMAX_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/onemax/*.conf" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/onemax/ReadMe.txt")
-	add_executable(onemax ${ONEMAX_SRC})
+	add_executable(onemax ${ONEMAX_SRC} src/Beagle-Examples/onemax/GlobalConfig.hpp src/Beagle-Examples/onemax/vector.h src/Beagle-Examples/onemax/TrussConfig.cpp src/Beagle-Examples/onemax/TrussConfig.h)
 	add_dependencies(onemax Beagle-BitStr Beagle-EC Beagle-Core)
-	target_link_libraries(onemax Beagle-BitStr Beagle-EC Beagle-Core pacc)
+	target_link_libraries(onemax Beagle-BitStr Beagle-EC Beagle-Core pacc ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
 	set_target_properties(onemax PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/onemax")
 	MoveConfigFiles("${ONEMAX_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/onemax" false)
 	install(TARGETS onemax DESTINATION bin/onemax)
 	install(FILES ${ONEMAX_DATA} DESTINATION bin/onemax)
 
-	# parity example
-	set(PARITY_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/parity/ParityEvalOp.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/parity/ParityMain.cpp")
-	set(PARITY_FAST_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/parity/ParityFastEvalOp.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/parity/ParityFastMain.cpp")
-	file(GLOB PARITY_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/parity/*.conf" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/parity/ReadMe.txt")
-	add_executable(parity ${PARITY_SRC})
-	add_dependencies(parity Beagle-STGP Beagle-GP Beagle-EC Beagle-Core)
-	target_link_libraries(parity Beagle-STGP Beagle-GP Beagle-EC Beagle-Core pacc)
-	add_executable(parity-fast ${PARITY_FAST_SRC})
-	add_dependencies(parity-fast Beagle-STGP Beagle-GP Beagle-EC Beagle-Core)
-	target_link_libraries(parity-fast Beagle-STGP Beagle-GP Beagle-EC Beagle-Core pacc)
-	set_target_properties(parity parity-fast PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/parity")
-	MoveConfigFiles("${PARITY_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/parity" false)
-	install(TARGETS parity parity-fast DESTINATION bin/parity)
-	install(FILES ${PARITY_DATA} DESTINATION bin/parity)
-
-	# spambase example
-	file(GLOB SPAMBASE_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/spambase/*.cpp")
-	file(GLOB SPAMBASE_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/spambase/*.conf" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/spambase/spambase.data" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/spambase/ReadMe.txt")
-	add_executable(spambase ${SPAMBASE_SRC})
-	add_dependencies(spambase Beagle-STGP Beagle-GP Beagle-EC Beagle-Core)
-	target_link_libraries(spambase Beagle-STGP Beagle-GP Beagle-EC Beagle-Core pacc)
-	set_target_properties(spambase PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/spambase")
-	MoveConfigFiles("${SPAMBASE_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/spambase" false)
-	install(TARGETS spambase DESTINATION bin/spambase)
-	install(FILES ${SPAMBASE_DATA} DESTINATION bin/spambase)
-
-	# symbreg example
-	file(GLOB SYMBREG_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/symbreg/*.cpp")
-	file(GLOB SYMBREG_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/symbreg/*.conf" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/symbreg/ReadMe.txt")
-	add_executable(symbreg ${SYMBREG_SRC})
-	add_dependencies(symbreg Beagle-STGP Beagle-GP Beagle-EC Beagle-Core)
-	target_link_libraries(symbreg Beagle-STGP Beagle-GP Beagle-EC Beagle-Core pacc)
-	set_target_properties(symbreg PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/symbreg")
-	MoveConfigFiles("${SYMBREG_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/symbreg" false)
-	install(TARGETS symbreg DESTINATION bin/symbreg)
-	install(FILES ${SYMBREG_DATA} DESTINATION bin/symbreg)
-
-	# tsp example
-	file(GLOB TSP_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/tsp/*.cpp")
-	file(GLOB TSP_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/tsp/*.conf" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/tsp/ReadMe.txt")
-	add_executable(tsp ${TSP_SRC})
-	add_dependencies(tsp Beagle-IntVec Beagle-EC Beagle-Core)
-	target_link_libraries(tsp Beagle-IntVec Beagle-EC Beagle-Core pacc)
-	set_target_properties(tsp PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/tsp")
-	MoveConfigFiles("${TSP_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/tsp" false)
-	install(TARGETS tsp DESTINATION bin/tsp)
-	install(FILES ${TSP_DATA} DESTINATION bin/tsp)
-
-	# tsp-hpc example
-	if(NOT BEAGLE_NO_HPC)
-		file(GLOB TSP_HPC_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/tsp-hpc/*.cpp")
-		file(GLOB TSP_HPC_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/tsp-hpc/*.conf")
-		add_executable(tsp-hpc ${TSP_HPC_SRC})
-		add_dependencies(tsp-hpc Beagle-HPC Beagle-IntVec Beagle-EC Beagle-Core)
-		target_link_libraries(tsp-hpc Beagle-HPC Beagle-IntVec Beagle-EC Beagle-Core pacc)
-		set_target_properties(tsp-hpc PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/tsp-hpc")
-		MoveConfigFiles("${TSP_HPC_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/tsp-hpc" false)
-		install(TARGETS tsp-hpc DESTINATION bin/tsp-hpc)
-		install(FILES ${TSP_DATA} DESTINATION bin/tsp-hpc)
-	endif(NOT BEAGLE_NO_HPC)
-
-	# zeromin example
-	file(GLOB ZEROMIN_SRC  "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/zeromin/*.cpp")
-	file(GLOB ZEROMIN_DATA "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/zeromin/*.conf" "${CMAKE_CURRENT_SOURCE_DIR}/src/Beagle-Examples/zeromin/ReadMe.txt")
-	add_executable(zeromin ${ZEROMIN_SRC})
-	add_dependencies(zeromin Beagle-BitStr Beagle-EC Beagle-Core)
-	target_link_libraries(zeromin Beagle-BitStr Beagle-EC Beagle-Core pacc)
-	set_target_properties(zeromin PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${BEAGLE_OUTPUT_DIR}/bin/zeromin")
-	MoveConfigFiles("${ZEROMIN_DATA}" "${BEAGLE_OUTPUT_DIR}/bin/zeromin" false)
-	install(TARGETS zeromin DESTINATION bin/zeromin)
-	install(FILES ${ZEROMIN_DATA} DESTINATION bin/zeromin)
 
 else(BEAGLE_BUILD_EXAMPLES)
 	message(STATUS "Will not build examples, you can build them by rerun CMake with BEAGLE_BUILD_EXAMPLES set to true")

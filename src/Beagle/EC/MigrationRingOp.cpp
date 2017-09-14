@@ -67,6 +67,7 @@ MigrationRingOp::MigrationRingOp(SelectionOp::Handle inSelectionOp,
 	mNumberMigrants(NULL)
 { }
 
+#include "GlobalConfig.hpp"
 
 /*!
  *  \brief Register the parameters of this operator.
@@ -83,7 +84,7 @@ void MigrationRingOp::registerParams(System& ioSystem)
 	    "Number of individuals migrating between each deme, at a each migration."
 	);
 	mNumberMigrants = castHandleT<UInt>(
-	                      ioSystem.getRegister().insertEntry("ec.mig.size", new UInt(5), lDescription));
+	                      ioSystem.getRegister().insertEntry("ec.mig.size", new UInt(MIGRATION_SIZE), lDescription));
 	Beagle_StackTraceEndM();
 }
 

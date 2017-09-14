@@ -1,31 +1,5 @@
-/*
- *  Open BEAGLE: A Generic Evolutionary Computation Framework in C++
- *  Copyright (C) 2001-2010 by Christian Gagne and Marc Parizeau
- *
- *  This library is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation, version 3 of the License.
- *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License and GNU General Public License for
- *  more details.
- *
- *  You should have received a copy of the GNU Lesser General Public
- *  License and GNU General Public License along with this library.
- *  If not, see <http://www.gnu.org/licenses/>.
- *
- *  Contact:
- *  Christian Gagne
- *  Laboratoire de vision et systemes numeriques
- *  Departement de genie electrique et de genie informatique
- *  Universite Laval, Quebec (Quebec), Canada  G1V 0A6
- *  http://vision.gel.ulaval.ca/~cgagne
- *  christian.gagne@gel.ulaval.ca
- *
- */
 
+#include "GlobalConfig.hpp"
 /*!
  *  \file   Beagle/Core/Evolver.cpp
  *  \brief  Source code of class Evolver.
@@ -908,7 +882,7 @@ void Evolver::registerParams(System& ioSystem)
 		                   "Number of demes and size of each deme of the population. The format of an UIntArray is S1:S2:...:Sn, where Si is the ith value. The size of the UIntArray is the number of demes present in the vivarium, while each value of the vector is the size of the corresponding deme."
 		               );
 		mPopSize = castHandleT<UIntArray>
-		           (ioSystem.getRegister().insertEntry("ec.pop.size", new UIntArray(1,100), lDescription));
+		           (ioSystem.getRegister().insertEntry("ec.pop.size", new UIntArray(1,MAX_POPULATION), lDescription));
 	}
 
 	// Add test individual parameter

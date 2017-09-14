@@ -1,30 +1,4 @@
-/*
- *  Open BEAGLE: A Generic Evolutionary Computation Framework in C++
- *  Copyright (C) 2001-2010 by Christian Gagne and Marc Parizeau
- *
- *  This library is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation, version 3 of the License.
- *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License and GNU General Public License for
- *  more details.
- *
- *  You should have received a copy of the GNU Lesser General Public
- *  License and GNU General Public License along with this library.
- *  If not, see <http://www.gnu.org/licenses/>.
- *
- *  Contact:
- *  Christian Gagne
- *  Laboratoire de vision et systemes numeriques
- *  Departement de genie electrique et de genie informatique
- *  Universite Laval, Quebec (Quebec), Canada  G1V 0A6
- *  http://vision.gel.ulaval.ca/~cgagne
- *  christian.gagne@gel.ulaval.ca
- *
- */
+#include "GlobalConfig.hpp"
 
 /*!
  *  \file   Beagle/EC/TermMaxGenOp.cpp
@@ -69,7 +43,7 @@ void TermMaxGenOp::registerParams(System& ioSystem)
 	    lOSS.str()
 	);
 	mMaxGeneration = castHandleT<UInt>(
-	                     ioSystem.getRegister().insertEntry("ec.term.maxgen", new UInt(50), lDescription));
+	                     ioSystem.getRegister().insertEntry("ec.term.maxgen", new UInt(MAX_GENERATIONS), lDescription));
 
 	Beagle_StackTraceEndM();
 }
